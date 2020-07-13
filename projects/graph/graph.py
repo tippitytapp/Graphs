@@ -104,13 +104,11 @@ class Graph:
         # pass  # TODO
 
         if starting_vertex not in self.visited:
-            print(starting_vertex)
             self.visited.add(starting_vertex)
+            print(starting_vertex)
             for next_v in self.get_neighbors(starting_vertex):
-                self.visited.add(next_v)
+                # self.visited.add(next_v)
                 self.dft_recursive(next_v)
-
-        
 
 
     def bfs(self, starting_vertex, destination_vertex):
