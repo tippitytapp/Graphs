@@ -8,38 +8,91 @@ class Graph:
     """Represent a graph as a dictionary of vertices mapping labels to edges."""
     def __init__(self):
         self.vertices = {}
+        self.visited=set()
 
     def add_vertex(self, vertex_id):
         """
         Add a vertex to the graph.
         """
-        pass  # TODO
+        # pass  # TODO
+        # set the index of the vertices dict to a vertex id
+        # make the value of that index a set to hold the values of the edges
+        self.vertices[vertex_id] = set()
 
-    def add_edge(self, v1, v2):
+    def add_edge(self, fromV, toV):
         """
         Add a directed edge to the graph.
         """
-        pass  # TODO
+        # pass  # TODO
+        # check that both the from vertex and the to vertex both exist in the graph
+        if fromV in self.vertices and toV in self.vertices:
+            # add the edge
+            self.vertices[fromV].add(toV)
+        else:
+            # if the vertices dont exist, raise error to add
+            raise IndexError('vertex (vertices) do not exist in graph, add to graph first')
 
     def get_neighbors(self, vertex_id):
         """
         Get all neighbors (edges) of a vertex.
         """
-        pass  # TODO
+        # pass  # TODO
+        # return the vertex listing
+        return self.vertices[vertex_id]
 
     def bft(self, starting_vertex):
         """
         Print each vertex in breadth-first order
         beginning from starting_vertex.
         """
-        pass  # TODO
+        # pass  # TODO
+        # create empty queue using the Queue class provided
+        queue = Queue()
+        # created empty set to house the visited nodes
+        visited = set()
+        # plac the starting_vertex in the queue
+        queue.enqueue(starting_vertex)
+        # while the queue is not empty
+        while queue.size() > 0:
+            # take the vertex out of the queue
+            vertex = queue.dequeue()
+            # if the vertex has not already been visited
+            if vertex not in visited:
+                # add the vertex to the visited set
+                visited.add(vertex)
+                print(vertex)
+                # loop through all the next vertices of the neighbors of the vertex
+                for next_vertex in self.get_neighbors(vertex):
+                    # add those neighbors to the queue and then loop
+                    queue.enqueue(next_vertex)
+        # return visited
 
     def dft(self, starting_vertex):
         """
         Print each vertex in depth-first order
         beginning from starting_vertex.
         """
-        pass  # TODO
+        # pass  # TODO
+        # create an epty stack using the Stack class provided
+        stack = Stack()
+        # create empty set to house all of the visited nodes
+        visited = set()
+        # push the starting vertex into the stack
+        stack.push(starting_vertex)
+        # while the stack is not empty
+        while stack.size() > 0:
+            # pop the vertex out of the queue
+            vertex = stack.pop()
+            # if the vertex is not already in the visited set
+            if vertex not in visited:
+                # add the vertex to the visited stack
+                visited.add(vertex)
+                print(vertex)
+                # check the next vertx using get neighbors 
+                for next_vertex in self.get_neighbors(vertex):
+                    # add those neighbors to the stack and then loop
+                    stack.push(next_vertex)
+        # return visited
 
     def dft_recursive(self, starting_vertex):
         """
@@ -48,7 +101,17 @@ class Graph:
 
         This should be done using recursion.
         """
-        pass  # TODO
+        # pass  # TODO
+
+        if starting_vertex not in self.visited:
+            print(starting_vertex)
+            self.visited.add(starting_vertex)
+            for next_v in self.get_neighbors(starting_vertex):
+                self.visited.add(next_v)
+                self.dft_recursive(next_v)
+
+        
+
 
     def bfs(self, starting_vertex, destination_vertex):
         """
