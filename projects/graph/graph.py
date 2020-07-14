@@ -8,7 +8,8 @@ class Graph:
     """Represent a graph as a dictionary of vertices mapping labels to edges."""
     def __init__(self):
         self.vertices = {}
-        self.visited=set()
+        self.visited = set()
+        self.path = []
 
     def add_vertex(self, vertex_id):
         """
@@ -161,7 +162,7 @@ class Graph:
                 visited.append(vertex)
         return
 
-    def dfs_recursive(self, starting_vertex, destination_vertex):
+    def dfs_recursive(self, starting_vertex, destination_vertex, path=None):
         """
         Return a list containing a path from
         starting_vertex to destination_vertex in
@@ -169,7 +170,22 @@ class Graph:
 
         This should be done using recursion.
         """
-        pass  # TODO
+
+        # pass  # TODO
+        if path is None:
+            path = list()
+        path.append(starting_vertex)
+        if starting_vertex == destination_vertex:
+            return path
+        if starting_vertex not in self.visited:
+            self.visited.add(starting_vertex)
+            for next_v in self.get_neighbors(starting_vertex):
+                self.dfs_recursive(next_v, destination_vertex, path)
+        return
+
+
+
+
 
 if __name__ == '__main__':
     graph = Graph()  # Instantiate your graph
