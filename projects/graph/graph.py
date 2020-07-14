@@ -149,8 +149,8 @@ class Graph:
         if starting_vertex == destination_vertex:
             return stack
         while stack:
-            path = stack.pop()
-            vertex = path[0]
+            path = stack.pop(0)
+            vertex = path[-1]
             if vertex not in visited:
                 for next_v in self.get_neighbors(vertex):
                     new_path = list(path)
