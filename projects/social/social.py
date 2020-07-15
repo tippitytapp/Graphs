@@ -74,6 +74,9 @@ class SocialGraph:
         """
         visited = {}  # Note that this is a dictionary, not a set
         # !!!! IMPLEMENT ME
+        for i, v in self.friendships.items():
+            if i == user_id:
+                visited[i] = [v]
         return visited
 
 
@@ -81,5 +84,5 @@ if __name__ == '__main__':
     sg = SocialGraph()
     sg.populate_graph(10, 2)
     print(sg.friendships)
-    # connections = sg.get_all_social_paths(1)
-    # print(connections)
+    connections = sg.get_all_social_paths(1)
+    print(connections)
