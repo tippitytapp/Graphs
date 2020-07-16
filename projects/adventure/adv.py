@@ -4,6 +4,7 @@ from world import World
 
 import random
 from ast import literal_eval
+from util import Stack, Queue
 
 # Load world
 world = World()
@@ -29,9 +30,26 @@ player = Player(world.starting_room)
 # traversal_path = ['n', 'n']
 traversal_path = []
 
+maze = {}
+# im assuming this should be visted rooms because thats what the test says?
+visited_rooms = set()
 
+# use the room method of get exits to build the current room exits
+def get_maze_exits(room):
+    # this makes each room in the maze into a dictionary to hold directions
+    maze[room.id] = {}
+    # this calls the get_exits method from the rooms class
+    exits = room.get_exits()
+    # for each direction in the exits, pre-populate with a '?'
+    for direction in exits:
+        maze[room.id][direction] ='?'
+    # return maze
+    return maze
+
+print(get_maze_exits(player.current_room))
 
 # TRAVERSAL TEST
+'''
 visited_rooms = set()
 player.current_room = world.starting_room
 visited_rooms.add(player.current_room)
@@ -45,12 +63,13 @@ if len(visited_rooms) == len(room_graph):
 else:
     print("TESTS FAILED: INCOMPLETE TRAVERSAL")
     print(f"{len(room_graph) - len(visited_rooms)} unvisited rooms")
-
+'''
 
 
 #######
 # UNCOMMENT TO WALK AROUND
 #######
+'''
 player.current_room.print_room_description(player)
 while True:
     cmds = input("-> ").lower().split(" ")
@@ -60,3 +79,4 @@ while True:
         break
     else:
         print("I did not understand that command.")
+        '''
