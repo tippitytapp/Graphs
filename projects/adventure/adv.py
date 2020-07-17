@@ -12,10 +12,10 @@ world = World()
 
 # You may uncomment the smaller graphs for development and testing purposes.
 # map_file = "maps/test_line.txt"
-map_file = "maps/test_cross.txt"
+# map_file = "maps/test_cross.txt"
 # map_file = "maps/test_loop.txt"
 # map_file = "maps/test_loop_fork.txt"
-# map_file = "maps/main_maze.txt"
+map_file = "maps/main_maze.txt"
 
 # Loads the map into a dictionary
 room_graph=literal_eval(open(map_file, "r").read())
@@ -29,54 +29,94 @@ player = Player(world.starting_room)
 # Fill this out with directions to walk
 # traversal_path = ['n', 'n']
 traversal_path = []
-anti_trav = {'n' : 's', 's' : 'n', 'e' : 'w', 'w' : 'e' }
-anti_trav_path = []
 maze = dict()
-# im assuming this should be visted rooms because thats what the test says?
+anti_trav_path = []
 visited_rooms = set()
-unknown_paths = list()
-# use the room method of get exits to build the current room exits
+anti_trav_dict = {'n': 's', 's': 'n', 'e': 'w', 'w': 'e'}
+
+# pull the room exits from the room method
 def get_room_exits(room):
-    # this makes each room in the maze into a dictionary to hold directions
-    maze[room.id] = {}
-    # this calls the get_exits method from the rooms class
+    # create a dictionary for the room using its id
+    maze[room.id] = dict()
+    # pull the exits rom the rooms get exits method
     exits = room.get_exits()
-    # for each direction in the exits, pre-populate with a '?'
-    for direction in exits:
-        maze[room.id][direction] ='?'
-    # return maze
-    return maze
+    # loop through the exits to create the dictionary with all "?"s
+    for exit in exits:
+        maze[room.id][exit] = '?'
 
-# print(get_room_exits(player.current_room))
+# DFS through the map
+def get_lost(room, directions):
+    # the room you're coming from is the prev_room
+    prev_room = player.current_room.id
+    # your new direction will come for the list of directions that room has available
+    new_dir = directions.pop(0)
+    # moves the player into the new direction
+    player.travel(new_dir)
+    # new room id becomes players new current room id
+    new_room_id = player.current_room.id
+    new_room = player.current_room
+    # add the direction you just traveled to the traversal path list
+    traversal_path.append(new_dir)
+    # get the way back from the dictionary i createdd
+    pathback = anti_trav_dict.get(new_dir)
+    # add that pathback to the anti travelled path
+    anti_trav_path.append(pathback)
+    # check to see if the new room is in the maze
+    if new_room_id not in maze:
+        # get it exits
+        get_room_exits(new_room)
+        # update the previous rooms insert for the maze
+        maze[prev_room][new_dir] = new_room_id
+        # update the new rooms insert for the maze
+        maze[new_room_id][pathback] = prev_room
+    else:
+        # update the maze listing
+        maze[prev_room][new_dir] = new_room_id
 
+# BFS back to a room with a '?'
+def go_back(room):
+    # loop through the paths in the anti-trav-paths
+    for move in anti_trav_path[::-1]:
+        # move the player one of the rooms
+        player.travel(move)
+        # add that room to the traversal path
+        traversal_path.append(move)
+        # remove that room from the anti_trav_path
+        anti_trav_path.pop(-1)
+        # if there is a '?' its the room you're looking for
+        if '?' in maze[player.current_room.id].values():
+            return
+
+# This runs the sim
+# while the length of the maze is smaller than the number of rooms
 while len(maze) < len(room_graph):
-    cur_room = player.current_room
-    if cur_room not in maze:
-        get_room_exits(cur_room)
-        # print(get_room_exits(cur_room))
-    for direction, destination in maze[cur_room.id].items():
-        if destination == '?':
+    # start the player off from his default current room
+    new_room = player.current_room
+    # check to see if that room is in the maze already
+    if new_room.id not in maze:
+        # if not then pull its exits from the rooms get_exits method
+        get_room_exits(new_room)
+    # keep track of paths unknown
+    unknown_paths = []
+    # for the directions and rooms in the new room
+    for direction, room in maze[new_room.id].items():
+        # if the room is a '?' add it to the unknown rooms list
+        if room == '?':
             unknown_paths.append(direction)
-            # print('uknown', unknown_paths)
+    # dfs through the maze and get lost using the unknown paths and starting in the new room
     if len(unknown_paths) > 0:
-        prev_room = player.current_room.id
-        new_dir = unknown_paths.pop(0)
-        player.travel(new_dir)
-        new_room = player.current_room
-        traversal_path.append(new_dir)
-        pathback = anti_trav.get(new_dir)
-        anti_trav_path.append(pathback)
-        if new_room.id not in maze:
-            get_room_exits(new_room)
-            maze[prev_room][new_dir] = new_room.id
-            maze[new_room.id][pathback] = prev_room
+        get_lost(new_room, unknown_paths)
+    else:
+        # do a bfs through the way back to find rooms with '?'s to go through
+        if len(anti_trav_path) > 0:
+            go_back(new_room)
         else:
-            maze[prev_room][new_dir] = new_room.id
-    elif len(anti_trav_path) > 0:
-        for untravdir in anti_trav_path[::-1]:
-            player.travel(untravdir)
-            anti_trav_path.pop(-1)
-            
+            # get the exits of the room
+            exits = new_room.get_exits()
+            # choose a random door to go through
+            door = random.choice(exits)
+            # make the player go through the door
+            player.travel(door)
 
 
 
